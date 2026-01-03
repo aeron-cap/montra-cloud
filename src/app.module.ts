@@ -5,10 +5,10 @@ import { AccountsModule } from './accounts/accounts.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm/browser';
-import { Users } from './users/users.entity';
-import { Accounts } from './accounts/accounts.entity';
 import { TransactionsModule } from './transactions/transactions.module';
-import { Transactions } from './transactions/transactions.entity';
+import { Users } from './users/entities/users.entity';
+import { Accounts } from './accounts/entities/accounts.entity';
+import { Transactions } from './transactions/entities/transactions.entity';
 
 @Module({
   imports: [

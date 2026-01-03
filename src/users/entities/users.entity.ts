@@ -31,4 +31,7 @@ export class Users {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'text', nullable: true })
+  refreshToken: string | null;
 }

@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import 'dotenv/config';
-import { Accounts } from '../accounts/accounts.entity';
-import { Users } from '../users/users.entity';
 import { DataSource } from 'typeorm';
-import { Transactions } from '../transactions/transactions.entity';
+import { Users } from '../users/entities/users.entity';
+import { Accounts } from '../accounts/entities/accounts.entity';
+import { Transactions } from '../transactions/entities/transactions.entity';
 
 // const host = process.env.DB_HOST ?? 'localhost';
 // const port = Number(process.env.DB_PORT ?? 5434);

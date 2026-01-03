@@ -16,4 +16,6 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsNotEmpty()
   password: string;
+
+  refreshToken: string;
 }

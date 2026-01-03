@@ -4,11 +4,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Transactions } from './transactions.entity';
+import { Transactions } from './entities/transactions.entity';
 import { EntityNotFoundError, Repository } from 'typeorm';
-import { User } from 'src/users/user.type';
-import { Transaction } from './transaction.type';
-import { TransactionDto } from 'src/dto/create-transaction';
+import { User } from 'src/users/interfaces/user.type';
+import { Transaction } from './interfaces/transaction.type';
+import { TransactionDto } from 'src/transactions/dto/create-transaction';
 
 @Injectable()
 export class TransactionsService {

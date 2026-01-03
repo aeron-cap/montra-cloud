@@ -4,10 +4,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Accounts } from './accounts.entity';
+import { Accounts } from './entities/accounts.entity';
 import { EntityNotFoundError, Repository } from 'typeorm';
-import { User } from 'src/users/user.type';
-import { AccountDto } from 'src/dto/create-account.dto';
+import { User } from 'src/users/interfaces/user.type';
+import { AccountDto } from 'src/accounts/dto/create-account.dto';
 import { TransactionsService } from 'src/transactions/transactions.service';
 
 @Injectable()

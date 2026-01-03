@@ -1,11 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { RegisterDto } from 'src/dto/register.dto';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from 'src/dto/login.dto';
-import { Users } from 'src/users/users.entity';
+import { LoginDto } from 'src/auth/dto/login.dto';
+import { Users } from 'src/users/entities/users.entity';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +34,18 @@ export class AuthService {
     user.password = hash;
     const createdUser = await this.usersService.createUser(user);
 
-    return this.issueToken(createdUser.id, createdUser.email);
+    const accessToken = await this.issueToken(
+      createdUser.id,
+      createdUser.email,
+    );
+    const refreshToken = await this.issueRefreshToken(
+      createdUser.id,
+      createdUser.email,
+    );
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async login(dto: LoginDto) {
@@ -38,7 +53,16 @@ export class AuthService {
 
     if (!user) return null;
 
-    return this.issueToken(user.id, user.email);
+    const accessToken = await this.issueToken(user.id, user.email);
+    const refreshToken = await this.issueRefreshToken(user.id, user.email);
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async logout(id: number) {
+    return await this.usersService.updateUserRefreshToken(id, null);
   }
 
   async validateUser(password: string, email: string): Promise<Users | null> {
@@ -51,10 +75,7 @@ export class AuthService {
     return user;
   }
 
-  private async issueToken(
-    sub: number,
-    email: string,
-  ): Promise<{ accessToken: string }> {
+  private async issueToken(sub: number, email: string): Promise<string> {
     const accessToken = await this.jwt.signAsync(
       { sub, email },
       {
@@ -63,8 +84,44 @@ export class AuthService {
       },
     );
 
+    return accessToken;
+  }
+
+  private async issueRefreshToken(sub: number, email: string): Promise<string> {
+    const refreshToken = await this.jwt.signAsync(
+      { sub, email },
+      {
+        secret: this.config.getOrThrow('JWT_SECRET'),
+        expiresIn: this.config.getOrThrow('JWT_REFRESH_TOKEN_EXPIRATION_MS'),
+      },
+    );
+
+    const hashedToken = await bcrypt.hash(
+      refreshToken,
+      Number(this.config.getOrThrow('BCRYPT_SALT')),
+    );
+
+    await this.usersService.updateUserRefreshToken(sub, hashedToken);
+    return hashedToken;
+  }
+
+  async refreshTokens(id: number, refreshToken: string) {
+    const user = await this.usersService.finById(id);
+    if (!user || !user.refreshToken)
+      throw new ForbiddenException('Access denied.');
+
+    const refreshTokenMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+    if (!refreshTokenMatches) throw new ForbiddenException('Access denied.');
+
+    const accessToken = await this.issueToken(user.id, user.email);
+    const newRefreshToken = await this.issueRefreshToken(user.id, user.email);
+
     return {
-      accessToken: accessToken,
+      accessToken,
+      newRefreshToken,
     };
   }
 }
