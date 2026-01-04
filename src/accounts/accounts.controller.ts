@@ -11,10 +11,10 @@ import {
 import { AccountsService } from './accounts.service';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { AccountDto } from 'src/accounts/dto/create-account.dto';
-import { RefreshTokenGuard } from 'src/auth/guards/refresh-jwt.guard';
 import type { User } from 'src/users/interfaces/user.type';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@UseGuards(RefreshTokenGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('accounts')
 export class AccountsController {
   constructor(private accountsService: AccountsService) {}

@@ -5,6 +5,7 @@ import { LoginDto } from 'src/auth/dto/login.dto';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import type { User } from 'src/users/interfaces/user.type';
 import { RefreshTokenGuard } from './guards/refresh-jwt.guard';
+import type { UserRefresh } from 'src/users/interfaces/user-refresh.type';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +29,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  refreshTokens(@GetUser() user: User) {
+  refreshTokens(@GetUser() user: UserRefresh) {
     return this.authService.refreshTokens(user.id, user.refreshToken);
   }
 }
