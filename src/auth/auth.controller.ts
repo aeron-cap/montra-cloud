@@ -2,7 +2,6 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { LoginDto } from 'src/auth/dto/login.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import type { User } from 'src/users/interfaces/user.type';
 import { RefreshTokenGuard } from './guards/refresh-jwt.guard';
@@ -21,7 +20,7 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenGuard)
   @Get('logout')
   logout(@GetUser() user: User) {
     return this.authService.logout(user.id);

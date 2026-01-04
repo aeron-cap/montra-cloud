@@ -19,19 +19,18 @@ export class RefreshJwtStrategy extends PassportStrategy(
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => req.get('x-refresh-token') ?? null,
+      ]),
+      secretOrKey: config.getOrThrow<string>('JWT_REFRESH_SECRET'),
       passReqToCallback: true,
     });
   }
 
   async validate(req: Request, payload: JwtPayload) {
-    const authHeader = req.get('Authorization');
-    if (!authHeader)
-      throw new UnauthorizedException('Missing Authorization header');
-
-    const refreshToken = authHeader.replace(/^Bearer\s+/i, '').trim();
-    if (!refreshToken) throw new UnauthorizedException('Missing refresh token');
+    const refreshToken = req.get('x-refresh-token');
+    if (!refreshToken)
+      throw new UnauthorizedException('Missing Refresh Token.');
 
     const id = payload.sub;
     const user = await this.usersRepository
@@ -46,6 +45,6 @@ export class RefreshJwtStrategy extends PassportStrategy(
     const ok = await bcrypt.compare(refreshToken, user.refreshToken);
     if (!ok) throw new UnauthorizedException('Invalid refresh token');
 
-    return { id: user.id, email: user.email };
+    return { id: user.id, email: user.email, refreshToken: refreshToken };
   }
 }

@@ -11,7 +11,7 @@ export class UsersService {
   ) {}
 
   async findMe(id: number): Promise<Users | null> {
-    return await this.usersRepository.findOne({
+    return await this.usersRepository.findOneOrFail({
       where: { id },
       select: {
         id: true,

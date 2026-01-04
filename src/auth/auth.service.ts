@@ -91,7 +91,7 @@ export class AuthService {
     const refreshToken = await this.jwt.signAsync(
       { sub, email },
       {
-        secret: this.config.getOrThrow('JWT_SECRET'),
+        secret: this.config.getOrThrow('JWT_REFRESH_SECRET'),
         expiresIn: this.config.getOrThrow('JWT_REFRESH_TOKEN_EXPIRATION_MS'),
       },
     );
@@ -102,7 +102,7 @@ export class AuthService {
     );
 
     await this.usersService.updateUserRefreshToken(sub, hashedToken);
-    return hashedToken;
+    return refreshToken;
   }
 
   async refreshTokens(id: number, refreshToken: string) {
