@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { Users } from 'src/users/entities/users.entity';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -89,32 +90,27 @@ export class AuthService {
 
   private async issueRefreshToken(sub: number, email: string): Promise<string> {
     const refreshToken = await this.jwt.signAsync(
-      { sub, email },
+      { sub, email, jti: randomUUID() },
       {
         secret: this.config.getOrThrow('JWT_REFRESH_SECRET'),
         expiresIn: this.config.getOrThrow('JWT_REFRESH_TOKEN_EXPIRATION_MS'),
       },
     );
 
-    const hashedToken = await bcrypt.hash(
-      refreshToken,
-      Number(this.config.getOrThrow('BCRYPT_SALT')),
-    );
+    // const hashedToken = await bcrypt.hash(
+    //   refreshToken,
+    //   Number(this.config.getOrThrow('BCRYPT_SALT')),
+    // );
 
-    await this.usersService.updateUserRefreshToken(sub, hashedToken);
+    // await this.usersService.updateUserRefreshToken(sub, hashedToken);
+    await this.usersService.updateUserRefreshToken(sub, refreshToken);
     return refreshToken;
   }
 
-  async refreshTokens(id: number, refreshToken: string) {
+  async refreshTokens(id: number) {
     const user = await this.usersService.finById(id);
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access denied.');
-
-    const refreshTokenMatches = await bcrypt.compare(
-      refreshToken,
-      user.refreshToken,
-    );
-    if (!refreshTokenMatches) throw new ForbiddenException('Access denied.');
 
     const accessToken = await this.issueToken(user.id, user.email);
     const newRefreshToken = await this.issueRefreshToken(user.id, user.email);

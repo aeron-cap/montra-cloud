@@ -28,8 +28,8 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
+  @Post('refresh')
   refreshTokens(@GetUser() user: UserRefresh) {
-    return this.authService.refreshTokens(user.id, user.refreshToken);
+    return this.authService.refreshTokens(user.id);
   }
 }

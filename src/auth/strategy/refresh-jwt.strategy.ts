@@ -42,7 +42,8 @@ export class RefreshJwtStrategy extends PassportStrategy(
     if (!user.refreshToken)
       throw new UnauthorizedException('Refresh token not set');
 
-    const ok = await bcrypt.compare(refreshToken, user.refreshToken);
+    // const ok = await bcrypt.compare(refreshToken, user.refreshToken);
+    const ok = refreshToken == user.refreshToken;
     if (!ok) throw new UnauthorizedException('Invalid refresh token');
 
     return { id: user.id, email: user.email, refreshToken: refreshToken };
