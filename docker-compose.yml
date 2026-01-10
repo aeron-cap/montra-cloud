@@ -47,8 +47,6 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_REFRESH_TOKEN_EXPIRATION_MS: ${JWT_REFRESH_TOKEN_EXPIRATION_MS}
-
-      BCRYPT_SALT: ${POSTGRES_USER}
     # use same network as db
     networks:
       - aeron-cap

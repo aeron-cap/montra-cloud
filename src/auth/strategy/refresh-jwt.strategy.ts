@@ -7,7 +7,7 @@ import { Users } from 'src/users/entities/users.entity';
 import { Repository } from 'typeorm';
 import { JwtPayload } from './jwt.payload';
 import { Request } from 'express';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class RefreshJwtStrategy extends PassportStrategy(
@@ -42,8 +42,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
     if (!user.refreshToken)
       throw new UnauthorizedException('Refresh token not set');
 
-    // const ok = await bcrypt.compare(refreshToken, user.refreshToken);
-    const ok = refreshToken == user.refreshToken;
+    const ok = await argon2.verify(user.refreshToken, refreshToken);
     if (!ok) throw new UnauthorizedException('Invalid refresh token');
 
     return { id: user.id, email: user.email, refreshToken: refreshToken };

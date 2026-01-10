@@ -41,6 +41,10 @@ export class UsersService {
   }
 
   async updateUserRefreshToken(id: number, refreshToken: string | null) {
-    await this.usersRepository.update({ id }, { refreshToken });
+    const result = await this.usersRepository.update({ id }, { refreshToken });
+
+    if (result.affected === 0) {
+      throw new Error(`User with ID ${id} not found during update!`);
+    }
   }
 }

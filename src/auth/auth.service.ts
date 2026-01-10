@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { UsersService } from 'src/users/users.service';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from 'src/auth/dto/login.dto';
@@ -27,10 +27,7 @@ export class AuthService {
       throw new BadRequestException('Email already has an account.');
     }
 
-    const hash = await bcrypt.hash(
-      user.password,
-      Number(this.config.getOrThrow('BCRYPT_SALT')),
-    );
+    const hash = await argon2.hash(user.password);
 
     user.password = hash;
     const createdUser = await this.usersService.createUser(user);
@@ -52,7 +49,10 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.validateUser(dto.password, dto.email);
 
-    if (!user) return null;
+    if (!user)
+      throw new BadRequestException(
+        'No User Matched with provided credentials.',
+      );
 
     const accessToken = await this.issueToken(user.id, user.email);
     const refreshToken = await this.issueRefreshToken(user.id, user.email);
@@ -70,7 +70,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
     if (!user || !user.isActive) return null;
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = await argon2.verify(user.password, password);
     if (!match) return null;
 
     return user;
@@ -97,13 +97,9 @@ export class AuthService {
       },
     );
 
-    // const hashedToken = await bcrypt.hash(
-    //   refreshToken,
-    //   Number(this.config.getOrThrow('BCRYPT_SALT')),
-    // );
+    const hashedToken = await argon2.hash(refreshToken);
 
-    // await this.usersService.updateUserRefreshToken(sub, hashedToken);
-    await this.usersService.updateUserRefreshToken(sub, refreshToken);
+    await this.usersService.updateUserRefreshToken(sub, hashedToken);
     return refreshToken;
   }
 
