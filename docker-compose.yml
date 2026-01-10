@@ -1,30 +1,47 @@
+# file format version docker is going to use
 version: '3.8'
+# list of services we will use
 services:
+  # name of service (for postgres) - separate containers
   dev-db:
+    # we need a version of postgres to install
     image: postgres:15
+    # ports to expose (from outside:from inside) docker
     ports:
       - 5434:5432
+    # environment variables, we used ${}, points to .env in the root
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    # using same networks permits Docker to let all the services in the network to talk to each other
     networks:
       - aeron-cap
+    # this is where we save our postgres data (tables)
     volumes:
-      - postgres_data:/var/lib/postgres/data
+      - postgres_data:/var/lib/postgresql/data
+  # name of service (for the app itself - NestJS)
   api:
+    # we build the app from the specifications inside it
     build:
+      # from . (here), find Dockerfile
       context: .
       dockerfile: Dockerfile
+    # expose ports for external and internal services to use relevant to docker
     ports:
       - 3000:3000
+    # environment variables
     environment:
+    # DB_HOST is the database we created above named dev-db
+    # used 5432 since it belongs inside the same docker container as the db
       DB_HOST: dev-db
       DB_PORT: 5432
 
+    # some usual env values for the app
       DB_USERNAME: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_DATABASE: ${POSTGRES_DB}
+      DB_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@dev-db:5432/${POSTGRES_DB}
 
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
@@ -32,13 +49,15 @@ services:
       JWT_REFRESH_TOKEN_EXPIRATION_MS: ${JWT_REFRESH_TOKEN_EXPIRATION_MS}
 
       BCRYPT_SALT: ${POSTGRES_USER}
+    # use same network as db
     networks:
       - aeron-cap
     depends_on:
-      - dev-dv
-      
+      - dev-db
+
+# private connection for our conatiners
 networks:
   aeron-cap:
-  # Tells docker to create a volume on HDD to save DB data
+# here we init the volumes to be used
 volumes:
   postgres_data:
