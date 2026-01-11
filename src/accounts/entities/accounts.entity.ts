@@ -2,6 +2,7 @@ import { Transactions } from '../../transactions/entities/transactions.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -69,6 +70,9 @@ export class Accounts {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @OneToMany(
     () => Transactions,

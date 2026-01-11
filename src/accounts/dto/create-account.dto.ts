@@ -67,10 +67,7 @@ export class AccountDto {
   @IsOptional()
   end_date?: Date;
 
-  @IsNotEmpty()
-  @IsNumber()
-  user_id: number;
-
+  @IsOptional()
   @IsBoolean()
-  delete_confirm: boolean;
+  delete_confirm?: boolean;
 }

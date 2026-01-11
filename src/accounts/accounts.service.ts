@@ -1,12 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Accounts } from './entities/accounts.entity';
-import { EntityNotFoundError, Repository } from 'typeorm';
-import { User } from 'src/users/interfaces/user.type';
+import { Repository } from 'typeorm';
 import { AccountDto } from 'src/accounts/dto/create-account.dto';
 import { TransactionsService } from 'src/transactions/transactions.service';
 
@@ -17,8 +12,7 @@ export class AccountsService {
     private transactionService: TransactionsService,
   ) {}
 
-  async getAllAccounts(user: User): Promise<Accounts[]> {
-    const user_id = user.id;
+  async getAllAccounts(user_id: number): Promise<Accounts[]> {
     return await this.accountRepository.find({
       where: {
         user_id: user_id,
@@ -26,76 +20,76 @@ export class AccountsService {
     });
   }
 
-  async getOneAccount(user_id: number, id: number): Promise<Accounts> {
-    try {
-      return await this.accountRepository
-        .createQueryBuilder('accounts')
-        .where('accounts.user_id = :user_id', { user_id })
-        .andWhere('accounts.id = :id', { id })
-        .getOneOrFail();
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        throw new BadRequestException('Account does not exist.');
-      }
-      throw e;
-    }
+  async getOneAccount(userId: number, id: number): Promise<Accounts> {
+    const account = await this.accountRepository.findOneBy({
+      id: id,
+      user_id: userId,
+    });
+
+    if (!account) throw new BadRequestException('Account does not exist.');
+    return account;
   }
 
-  async createAccount(user: User, data: AccountDto) {
-    if (user.id == data.user_id) {
-      const existingAccount = await this.findOneByName(user.id, data.name);
+  async createAccount(user_id: number, data: AccountDto) {
+    const existingAccount = await this.findOneByName(user_id, data.name);
 
-      if (existingAccount) {
-        throw new BadRequestException('Account name already exists.');
-      }
+    if (existingAccount) {
+      throw new BadRequestException('Account name already exists.');
+    }
 
-      const account = this.accountRepository.create({
-        ...data,
-      });
+    const account = this.accountRepository.create({
+      ...data,
+      user_id: user_id,
+    });
 
-      return this.accountRepository.save(account);
-    } else {
-      throw new UnauthorizedException(
-        'You are not authorized to create an account for this user.',
+    return this.accountRepository.save(account);
+  }
+
+  async editAccount(user_id: number, id: number, data: AccountDto) {
+    const accountToUpdate = await this.findOneById(user_id, id);
+
+    if (!accountToUpdate) {
+      throw new BadRequestException('Account does not exist.');
+    }
+
+    const userId = user_id;
+    const accountId = accountToUpdate.id;
+    const accountName = data.name;
+
+    const exisitingName = await this.accountRepository
+      .createQueryBuilder('accounts')
+      .where('accounts.user_id = :userId', { userId })
+      .andWhere('accounts.id != :accountId', { accountId })
+      .andWhere('accounts.name = :accountName', { accountName })
+      .getOne();
+
+    if (exisitingName) {
+      throw new BadRequestException('Account name already exists.');
+    }
+
+    Object.assign(accountToUpdate, data);
+
+    return this.accountRepository.save(accountToUpdate);
+  }
+
+  async deleteAccount(user_id: number, id: number) {
+    const result = await this.accountRepository
+      .createQueryBuilder('accounts')
+      .softDelete()
+      .where('id = :id', { id })
+      .andWhere('user_id = :user_id', { user_id })
+      .execute();
+
+    if (result.affected === 0) {
+      throw new BadRequestException(
+        'Account not found or could not be deleted',
       );
     }
+
+    return { message: 'Account deleted successfully' };
   }
 
-  async editAccount(user: User, id: number, data: AccountDto) {
-    if (user.id == data.user_id) {
-      const accountToUpdate = await this.findOneById(user.id, id);
-
-      if (!accountToUpdate) {
-        throw new BadRequestException('Account does not exist.');
-      }
-
-      const userId = user.id;
-      const accountId = accountToUpdate.id;
-      const accountName = data.name;
-
-      const exisitingName = await this.accountRepository
-        .createQueryBuilder('accounts')
-        .where('accounts.user_id = :userId', { userId })
-        .andWhere('accounts.id != :accountId', { accountId })
-        .andWhere('accounts.name = :accountName', { accountName })
-        .getOne();
-
-      if (exisitingName) {
-        throw new BadRequestException('Account name already exists.');
-      }
-
-      Object.assign(accountToUpdate, data);
-
-      return this.accountRepository.save(accountToUpdate);
-    } else {
-      throw new UnauthorizedException(
-        'You are not authorized to edit the account for this user.',
-      );
-    }
-  }
-
-  // deleteAccount() {}
-
+  // helpers
   async findOneByName(user_id: number, name: string): Promise<Accounts | null> {
     return await this.accountRepository
       .createQueryBuilder('accounts')
@@ -111,6 +105,4 @@ export class AccountsService {
       .andWhere('accounts.id = :id', { id })
       .getOne();
   }
-
-  // checkRelatedTransactions() {}
 }

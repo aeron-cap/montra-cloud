@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -21,7 +22,7 @@ export class AccountsController {
 
   @Get()
   getAll(@GetUser() user: User) {
-    return this.accountsService.getAllAccounts(user);
+    return this.accountsService.getAllAccounts(user.id);
   }
 
   @Get(':id')
@@ -31,7 +32,7 @@ export class AccountsController {
 
   @Post('create')
   createAccount(@GetUser() user: User, @Body() data: AccountDto) {
-    return this.accountsService.createAccount(user, data);
+    return this.accountsService.createAccount(user.id, data);
   }
 
   @Patch('edit/:id')
@@ -40,15 +41,11 @@ export class AccountsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() data: AccountDto,
   ) {
-    return this.accountsService.editAccount(user, id, data);
+    return this.accountsService.editAccount(user.id, id, data);
   }
 
-  // @Delete('delete/:id')
-  // deleteAccount(
-  //   @GetUser() user: Users,
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body() data: AccountDto,
-  // ) {
-  //   return this.accountsService.deleteAccount(user, id, data);
-  // }
+  @Delete('delete/:id')
+  deleteAccount(@GetUser() user: User, @Param('id', ParseIntPipe) id: number) {
+    return this.accountsService.deleteAccount(user.id, id);
+  }
 }
