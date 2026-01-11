@@ -1,12 +1,12 @@
 # just label
 name: nestjs-ci
 
-# triggers when to run, when we push on main, or when pr is open on main
+# triggers when to run, when we push on master, or when pr is open on master
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   pull_request:
-    branches: ["main"]
+    branches: ["master"]
 
 jobs:
   build:
