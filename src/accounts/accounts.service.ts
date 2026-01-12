@@ -20,10 +20,10 @@ export class AccountsService {
     });
   }
 
-  async getOneAccount(userId: number, id: number): Promise<Accounts> {
+  async getOneAccount(user_id: number, id: number): Promise<Accounts> {
     const account = await this.accountRepository.findOneBy({
       id: id,
-      user_id: userId,
+      user_id: user_id,
     });
 
     if (!account) throw new BadRequestException('Account does not exist.');

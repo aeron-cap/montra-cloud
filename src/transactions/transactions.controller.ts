@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -21,7 +22,7 @@ export class TransactionsController {
 
   @Get('')
   getAll(@GetUser() user: User) {
-    return this.transactionService.getAllTransactions(user);
+    return this.transactionService.getAllTransactions(user.id);
   }
 
   @Get('/:id')
@@ -31,7 +32,7 @@ export class TransactionsController {
 
   @Post('create')
   createTransaction(@GetUser() user: User, @Body() data: TransactionDto) {
-    return this.transactionService.createTransaction(user, data);
+    return this.transactionService.createTransaction(user.id, data);
   }
 
   @Patch('edit/:id')
@@ -40,6 +41,14 @@ export class TransactionsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() data: TransactionDto,
   ) {
-    return this.transactionService.editTransaction(user, id, data);
+    return this.transactionService.editTransaction(user.id, id, data);
+  }
+
+  @Delete('delete/:id')
+  deleteTransaction(
+    @GetUser() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.transactionService.deleteTransaction(user.id, id);
   }
 }
