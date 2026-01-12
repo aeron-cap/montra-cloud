@@ -9,6 +9,10 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { Users } from './users/entities/users.entity';
 import { Accounts } from './accounts/entities/accounts.entity';
 import { Transactions } from './transactions/entities/transactions.entity';
+import { AccountClasses } from './entity_types/entities/account_classes.entity';
+import { CardNetworkEntities } from './entity_types/entities/card_network.entities';
+import { TransactionCategories } from './entity_types/entities/transaction_category.entity';
+import { TransactionTypes } from './entity_types/entities/transaction_type.entity';
 
 @Module({
   imports: [
@@ -20,7 +24,15 @@ import { Transactions } from './transactions/entities/transactions.entity';
       useFactory: (config: ConfigService): DataSourceOptions => ({
         type: 'postgres',
         url: config.get<string>('DB_URL'),
-        entities: [Users, Accounts, Transactions],
+        entities: [
+          Users,
+          Accounts,
+          Transactions,
+          AccountClasses,
+          CardNetworkEntities,
+          TransactionCategories,
+          TransactionTypes,
+        ],
       }),
     }),
     AuthModule,
