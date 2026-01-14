@@ -9,8 +9,8 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { Users } from './users/entities/users.entity';
 import { Accounts } from './accounts/entities/accounts.entity';
 import { Transactions } from './transactions/entities/transactions.entity';
-import { AccountClasses } from './entity_types/entities/account_classes.entity';
-import { CardNetworkEntities } from './entity_types/entities/card_network.entities';
+import { AccountClasses } from './entity_types/entities/account_class.entity';
+import { CardNetworks } from './entity_types/entities/card_network.entity';
 import { TransactionCategories } from './entity_types/entities/transaction_category.entity';
 import { TransactionTypes } from './entity_types/entities/transaction_type.entity';
 
@@ -29,7 +29,7 @@ import { TransactionTypes } from './entity_types/entities/transaction_type.entit
           Accounts,
           Transactions,
           AccountClasses,
-          CardNetworkEntities,
+          CardNetworks,
           TransactionCategories,
           TransactionTypes,
         ],

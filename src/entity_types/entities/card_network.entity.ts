@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class CardNetworkEntities {
+export class CardNetworks {
   @PrimaryGeneratedColumn()
   id: number;
 
