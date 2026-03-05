@@ -1,5 +1,3 @@
-# file format version docker is going to use
-version: '3.8'
 # list of services we will use
 services:
   # name of service (for postgres) - separate containers
