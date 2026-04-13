@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Accounts } from './entities/accounts.entity';
 import { Repository } from 'typeorm';
-import { AccountDto } from 'src/accounts/dto/create-account.dto';
 import { TransactionsService } from 'src/transactions/transactions.service';
+import { CreateAccountDto, EditAccountDto } from './dto/account.dto';
 
 @Injectable()
 export class AccountsService {
@@ -12,7 +12,7 @@ export class AccountsService {
     private transactionService: TransactionsService,
   ) {}
 
-  async getAllAccounts(user_id: number): Promise<Accounts[]> {
+  async getAllAccounts(user_id: string): Promise<Accounts[]> {
     return await this.accountRepository.find({
       where: {
         user_id: user_id,
@@ -20,7 +20,7 @@ export class AccountsService {
     });
   }
 
-  async getOneAccount(user_id: number, id: number): Promise<Accounts> {
+  async getOneAccount(user_id: string, id: string): Promise<Accounts> {
     const account = await this.accountRepository.findOneBy({
       id: id,
       user_id: user_id,
@@ -30,7 +30,7 @@ export class AccountsService {
     return account;
   }
 
-  async createAccount(user_id: number, data: AccountDto) {
+  async createAccount(user_id: string, data: CreateAccountDto) {
     const existingAccount = await this.findOneByName(user_id, data.name);
 
     if (existingAccount) {
@@ -45,7 +45,7 @@ export class AccountsService {
     return this.accountRepository.save(account);
   }
 
-  async editAccount(user_id: number, id: number, data: AccountDto) {
+  async editAccount(user_id: string, id: string, data: EditAccountDto) {
     const accountToUpdate = await this.findOneById(user_id, id);
 
     if (!accountToUpdate) {
@@ -72,7 +72,7 @@ export class AccountsService {
     return this.accountRepository.save(accountToUpdate);
   }
 
-  async deleteAccount(user_id: number, id: number) {
+  async deleteAccount(user_id: string, id: string) {
     const result = await this.accountRepository
       .createQueryBuilder('accounts')
       .softDelete()
@@ -90,7 +90,7 @@ export class AccountsService {
   }
 
   // helpers
-  async findOneByName(user_id: number, name: string): Promise<Accounts | null> {
+  async findOneByName(user_id: string, name: string): Promise<Accounts | null> {
     return await this.accountRepository
       .createQueryBuilder('accounts')
       .where('accounts.user_id = :user_id', { user_id })
@@ -98,7 +98,7 @@ export class AccountsService {
       .getOne();
   }
 
-  async findOneById(user_id: number, id: number): Promise<Accounts | null> {
+  async findOneById(user_id: string, id: string): Promise<Accounts | null> {
     return await this.accountRepository
       .createQueryBuilder('accounts')
       .where('accounts.user_id = :user_id', { user_id })

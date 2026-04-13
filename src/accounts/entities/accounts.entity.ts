@@ -1,10 +1,7 @@
-import { Transactions } from '../../transactions/entities/transactions.entity';
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,79 +9,29 @@ import {
 @Entity()
 export class Accounts {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  account_class_id: number;
+  account_type!: string;
 
   @Column()
-  account_class_name: string;
+  provider!: string;
 
-  @Column()
-  account_type_id: number;
+  @Column('decimal', { precision: 15, scale: 2 })
+  initial_balance!: number;
 
-  @Column()
-  account_type_name: string;
-
-  @Column()
-  current_balance: number;
-
-  @Column({ nullable: true })
-  interest_rate?: number;
-
-  @Column({ nullable: true })
-  goal_amount?: number;
-
-  @Column({ nullable: true })
-  network_id?: number;
-
-  @Column({ nullable: true })
-  network_name?: string;
-
-  @Column({ nullable: true })
-  credit_limit?: number;
-
-  @Column({ nullable: true })
-  cash_advance_limit?: number;
-
-  @Column({ nullable: true })
-  billing_date?: Date;
-
-  @Column({ nullable: true })
-  due_date?: Date;
-
-  @Column({ nullable: true })
-  start_date?: Date;
-
-  @Column({ nullable: true })
-  end_date?: Date;
-
-  @Column({ select: false })
-  user_id: number;
+  @Column('decimal', { precision: 15, scale: 2 })
+  current_balance!: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at!: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
-
-  @OneToMany(
-    () => Transactions,
-    (transactions) => transactions.account_to_add,
-    { nullable: true },
-  )
-  income_transactions: Transactions[];
-
-  @OneToMany(
-    () => Transactions,
-    (transactions) => transactions.account_to_deduct,
-    { nullable: true },
-  )
-  expense_transactions: Transactions[];
+  @Column()
+  user_id!: string;
 }
