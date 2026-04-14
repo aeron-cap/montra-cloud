@@ -3,17 +3,18 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class RegisterDto {
   @IsNotEmpty()
   @IsString()
-  firstName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
+  name!: string;
 
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsNotEmpty()
   @IsNotEmpty()
-  password: string;
+  password!: string;
+}
+
+export class MobileRegisterDto extends RegisterDto {
+  @IsNotEmpty()
+  randId!: string;
 }

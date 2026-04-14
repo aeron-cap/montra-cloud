@@ -20,8 +20,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 export class AccountsController {
   constructor(private accountsService: AccountsService) {}
 
-  // TODO: update the User dto, type, and entity
-  @Get()
   getAll(@GetUser() user: User) {
     return this.accountsService.getAllAccounts(user.id);
   }

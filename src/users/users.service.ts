@@ -10,21 +10,19 @@ export class UsersService {
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
 
-  async findMe(id: number): Promise<Users | null> {
+  async findMe(id: string): Promise<Users | null> {
     return await this.usersRepository.findOneOrFail({
       where: { id },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
+        name: true,
         createdAt: true,
         updatedAt: true,
       },
     });
   }
 
-  async finById(id: number): Promise<Users | null> {
+  async finById(id: string): Promise<Users | null> {
     return await this.usersRepository.findOneBy({ id });
   }
 
@@ -40,11 +38,15 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
-  async updateUserRefreshToken(id: number, refreshToken: string | null) {
+  async updateUserRefreshToken(id: string, refreshToken: string | null) {
     const result = await this.usersRepository.update({ id }, { refreshToken });
 
     if (result.affected === 0) {
       throw new Error(`User with ID ${id} not found during update!`);
     }
+  }
+
+  async findOneByRandId(name: string, randId: string): Promise<Users | null> {
+    return await this.usersRepository.findOneBy({ name, randId });
   }
 }

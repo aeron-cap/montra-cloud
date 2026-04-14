@@ -9,29 +9,26 @@ import {
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: string;
 
   @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
-
-  @Column({ default: true })
-  isActive: boolean;
+  name!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
-  @Column({ select: false })
-  password: string;
+  @Column()
+  password!: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Column({ type: 'text', nullable: true })
-  refreshToken: string | null;
+  refreshToken!: string | null;
+
+  @Column()
+  randId!: string;
 }

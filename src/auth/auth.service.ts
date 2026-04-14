@@ -3,12 +3,12 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { RegisterDto } from 'src/auth/dto/register.dto';
+import { MobileRegisterDto, RegisterDto } from 'src/auth/dto/register.dto';
 import { UsersService } from 'src/users/users.service';
 import * as argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from 'src/auth/dto/login.dto';
+import { LoginDto, MobileLoginDto } from 'src/auth/dto/login.dto';
 import { Users } from 'src/users/entities/users.entity';
 import { randomUUID } from 'crypto';
 
@@ -62,13 +62,13 @@ export class AuthService {
     };
   }
 
-  async logout(id: number) {
+  async logout(id: string) {
     return await this.usersService.updateUserRefreshToken(id, null);
   }
 
   async validateUser(password: string, email: string): Promise<Users | null> {
     const user = await this.usersService.findOneByEmail(email);
-    if (!user || !user.isActive) return null;
+    if (!user) return null;
 
     const match = await argon2.verify(user.password, password);
     if (!match) return null;
@@ -76,7 +76,7 @@ export class AuthService {
     return user;
   }
 
-  private async issueToken(sub: number, email: string): Promise<string> {
+  private async issueToken(sub: string, email: string): Promise<string> {
     const accessToken = await this.jwt.signAsync(
       { sub, email },
       {
@@ -88,7 +88,7 @@ export class AuthService {
     return accessToken;
   }
 
-  private async issueRefreshToken(sub: number, email: string): Promise<string> {
+  private async issueRefreshToken(sub: string, email: string): Promise<string> {
     const refreshToken = await this.jwt.signAsync(
       { sub, email, jti: randomUUID() },
       {
@@ -103,7 +103,7 @@ export class AuthService {
     return refreshToken;
   }
 
-  async refreshTokens(id: number) {
+  async refreshTokens(id: string) {
     const user = await this.usersService.finById(id);
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access denied.');
@@ -114,6 +114,54 @@ export class AuthService {
     return {
       accessToken,
       newRefreshToken,
+    };
+  }
+
+  async mobileRegister(dto: MobileRegisterDto) {
+    const existingUser = await this.usersService.findOneByEmail(dto.email);
+
+    if (existingUser) {
+      throw new BadRequestException('Email already has an account.');
+    }
+
+    const hash = await argon2.hash(dto.password);
+    const randId = randomUUID();
+
+    const userToCreate = {
+      ...dto,
+      password: hash,
+      randId,
+    };
+
+    const createdUser = await this.usersService.createUser(userToCreate);
+    const accessToken = await this.issueToken(
+      createdUser.id,
+      createdUser.email,
+    );
+    const refreshToken = await this.issueRefreshToken(
+      createdUser.id,
+      createdUser.email,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async mobileLogin(dto: MobileLoginDto) {
+    const user = await this.usersService.findOneByRandId(dto.name, dto.randId);
+    if (!user) {
+      throw new BadRequestException(
+        'No User Matched with provided credentials.',
+      );
+    }
+
+    const accessToken = await this.issueToken(user.id, user.email);
+    const refreshToken = await this.issueRefreshToken(user.id, user.email);
+    return {
+      accessToken,
+      refreshToken,
     };
   }
 }

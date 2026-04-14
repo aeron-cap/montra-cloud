@@ -1,5 +1,5 @@
 export interface UserRefresh {
-  id: number;
+  id: string;
   email: string;
   refreshToken: string;
 }
