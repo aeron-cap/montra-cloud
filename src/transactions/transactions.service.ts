@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Transactions } from './entities/transactions.entity';
 import { Repository } from 'typeorm';
 import { Transaction } from './interfaces/transaction.type';
-import { TransactionDto } from 'src/transactions/dto/create-transaction';
+import {
+  CreateTransactionDto,
+  EditTransactionDto,
+} from './dto/create-transaction';
 
 @Injectable()
 export class TransactionsService {
@@ -12,7 +15,7 @@ export class TransactionsService {
     private transactionRepository: Repository<Transactions>,
   ) {}
 
-  async getAllTransactions(user_id: number): Promise<Transaction[]> {
+  async getAllTransactions(user_id: string): Promise<Transaction[]> {
     return this.transactionRepository.find({
       where: {
         user_id: user_id,
@@ -20,7 +23,7 @@ export class TransactionsService {
     });
   }
 
-  async getOneTransaction(user_id: number, id: number): Promise<Transaction> {
+  async getOneTransaction(user_id: string, id: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOneBy({
       id: id,
       user_id: user_id,
@@ -32,7 +35,7 @@ export class TransactionsService {
     return transaction;
   }
 
-  async createTransaction(user_id: number, data: TransactionDto) {
+  async createTransaction(user_id: string, data: CreateTransactionDto) {
     const transaction = this.transactionRepository.create({
       ...data,
       user_id: user_id,
@@ -41,7 +44,7 @@ export class TransactionsService {
     return this.transactionRepository.save(transaction);
   }
 
-  async editTransaction(user_id: number, id: number, data: TransactionDto) {
+  async editTransaction(user_id: string, id: string, data: EditTransactionDto) {
     const transactionToUpdate = await this.findOneById(user_id, id);
 
     if (!transactionToUpdate) {
@@ -53,7 +56,7 @@ export class TransactionsService {
     return this.transactionRepository.save(transactionToUpdate);
   }
 
-  async deleteTransaction(user_id: number, id: number) {
+  async deleteTransaction(user_id: string, id: string) {
     const result = await this.transactionRepository
       .createQueryBuilder('transactions')
       .softDelete()
@@ -68,8 +71,7 @@ export class TransactionsService {
     return { message: 'Transacation deleted successfully' };
   }
 
-  // helpers
-  async findOneById(user_id: number, id: number) {
+  async findOneById(user_id: string, id: string) {
     return await this.transactionRepository
       .createQueryBuilder('transactions')
       .where('transactions.user_id = :user_id', { user_id })

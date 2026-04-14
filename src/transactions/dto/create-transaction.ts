@@ -1,67 +1,96 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transactions } from '../entities/transactions.entity';
 
-export class TransactionDto {
-  @IsOptional()
-  dateTime?: Date;
-
-  @IsNumber()
-  transaction_category_id: number;
-
-  @IsString()
-  transaction_category_name: string;
-
-  @IsNumber()
-  amount: number;
+export class CreateTransactionDto implements Omit<
+  Transactions,
+  'id' | 'created_at' | 'updated_at'
+> {
+  @IsNotEmpty()
+  datetime!: Date;
 
   @IsString()
-  transaction_name: string;
-
-  @IsString()
-  transaction_note: string;
-
-  @IsNumber()
-  transaction_type_id: number;
-
-  @IsString()
-  transaction_type_name: string;
-
-  @IsOptional()
-  @IsNumber()
-  account_to_deduct_id?: number;
-
-  @IsOptional()
-  @IsString()
-  account_to_deduct_name?: string;
-
-  @IsOptional()
-  @IsNumber()
-  budget_id?: number;
-
-  @IsOptional()
-  @IsString()
-  budget_name?: string;
-
-  @IsOptional()
-  @IsNumber()
-  account_to_add_id?: number;
-
-  @IsOptional()
-  @IsString()
-  account_to_add_name?: string;
-
-  @IsOptional()
-  @IsNumber()
-  number_of_installment?: number;
-
-  @IsOptional()
-  @IsNumber()
-  total_installment_amount?: number;
-
-  @IsOptional()
-  @IsNumber()
-  fee?: number;
+  @IsNotEmpty()
+  transaction_category!: string;
 
   @IsNotEmpty()
   @IsNumber()
-  user_id: number;
+  amount!: number;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  transaction_type!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  transaction_account!: string;
+
+  @IsOptional()
+  receiving_account?: string;
+
+  @IsOptional()
+  receiving_category?: string;
+
+  @IsOptional()
+  saving_name?: string;
+
+  @IsOptional()
+  @IsNumber()
+  fee!: number;
+
+  @IsNotEmpty()
+  @IsString()
+  user_id!: string;
+}
+
+export class EditTransactionDto implements Omit<
+  Transactions,
+  'created_at' | 'updated_at'
+> {
+  @IsString()
+  @IsNotEmpty()
+  id!: string;
+
+  @IsNotEmpty()
+  datetime!: Date;
+
+  @IsString()
+  @IsNotEmpty()
+  transaction_category!: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount!: number;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  transaction_type!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  transaction_account!: string;
+
+  @IsOptional()
+  receiving_account?: string;
+
+  @IsOptional()
+  receiving_category?: string;
+
+  @IsOptional()
+  saving_name?: string;
+
+  @IsOptional()
+  @IsNumber()
+  fee!: number;
+
+  @IsNotEmpty()
+  @IsString()
+  user_id!: string;
 }
