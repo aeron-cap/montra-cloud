@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d src/db/data-source.ts",
+    "migration:generate": "sh -c 'npx typeorm-ts-node-commonjs migration:generate -d src/db/data-source.ts src/db/migrations/$1' _",
     "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/db/data-source.ts",
     "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d src/db/data-source.ts",
     "migration:create": "npx typeorm migration:create src/db/migrations/ManualMigration",
