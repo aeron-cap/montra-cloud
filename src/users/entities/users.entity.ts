@@ -29,6 +29,6 @@ export class Users {
   @Column({ type: 'text', nullable: true })
   refreshToken!: string | null;
 
-  @Column()
+  @Column({ nullable: true })
   randId!: string;
 }
