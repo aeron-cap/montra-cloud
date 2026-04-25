@@ -18,6 +18,12 @@ services:
     # this is where we save our postgres data (tables)
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # check if db is ready
+    healthcheck:
+      test: ["CMD_SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s,
+      timeout: 5s,
+      retries: 5
   # name of service (for the app itself - NestJS)
   api:
     # we build the app from the specifications inside it
@@ -49,7 +55,8 @@ services:
     networks:
       - aeron-cap
     depends_on:
-      - dev-db
+      dev-db:
+        condition: service_healthy
 
 # private connection for our conatiners
 networks:
